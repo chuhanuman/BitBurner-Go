@@ -13,6 +13,10 @@ void Session::doRequest() {
 }
 
 void Session::onRequest(const beast::error_code& errorCode, std::size_t bytesTransferred) {
+    if(errorCode == http::error::end_of_stream) {
+	    return;
+    }
+
     if (errorCode) {
         return printError(errorCode, "async_read");
     }

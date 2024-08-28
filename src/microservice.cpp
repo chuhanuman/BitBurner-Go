@@ -10,8 +10,14 @@ int main() {
 
 	net::io_context ioc{1};
 	std::make_shared<Listener>(ioc, tcp::endpoint{address, port}, [](std::string request) {
-		std::cout << request << '\n';
-		return request;
+		MCTS mcts(10000);
+		GameState* gameState = GameState::newGame(request.at(0), request.substr(1));
+
+		std::string response = std::to_string(gameState->getValidMoves()->at(mcts.getBestMove(gameState)));
+
+		delete gameState;
+
+		return response;
 	})->run();
 
 	ioc.run();
