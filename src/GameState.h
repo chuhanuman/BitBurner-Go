@@ -133,7 +133,7 @@ private:
 	/**
 	 * @brief Previous game board
 	 */
-	std::string previousBoard;
+	std::unordered_set<std::string> previousBoards;
 	/**
 	 * @brief Whether the last move was a pass
 	 */

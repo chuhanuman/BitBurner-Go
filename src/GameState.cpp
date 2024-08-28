@@ -56,7 +56,8 @@ bool GameState::isValid(const int move) {
 			return false;
 		}
 
-        const bool possibleRepeat = previousBoard[move] == color;
+		const bool possibleRepeat = std::any_of(previousBoards.begin(), previousBoards.end(),
+			[this, move](auto& previousBoard){return previousBoard[move] == color;});
 		const std::vector<int> neighbors = getNeighbors(move);
 
 		//Move is not suicide from adjacent spaces
@@ -87,7 +88,7 @@ bool GameState::isValid(const int move) {
 
 		//Move is not repeat
 		const std::string resultBoard = placePiece(move);
-		if (resultBoard != previousBoard) {
+		if (previousBoards.find(resultBoard) == previousBoards.end()) {
 			return true;
 		}
         
@@ -201,8 +202,9 @@ GameState* GameState::makeMove(const int move) const {
 
 	child->color = flipColor(color);
 	child->size = size;
+	child->previousBoards = previousBoards;
+	child->previousBoards.emplace(board);
 	if (move != -1) {
-		child->previousBoard = board;
 		child->board = placePiece(move);
 		child->passed = false;
     } else {
