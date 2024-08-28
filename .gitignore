@@ -4,3 +4,5 @@
 CppProperties.json
 Debug/
 x64/
+CMakeSettings.json
+out/
