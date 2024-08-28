@@ -6,7 +6,7 @@
 int main() {
 	MCTS mcts(10000);
 
-	GameState* root = GameState::newGame('X', ".........................");
+	GameState* root = GameState::newGame('X', "#...#.....#.O...........#");
 	GameState* gameState = root;
 	gameState->printGameState();
 
@@ -14,12 +14,15 @@ int main() {
 		const unsigned int bestMove = mcts.getBestMove(gameState);
 
 		for (unsigned int i = 0; i < gameState->getValidMoves()->size(); i++) {
-			std::cout << gameState->getValidMoves()->at(i) << " " << mcts.getMoveValue(gameState->getChild(i)) << '\n';
+			std::cout << i << " " << gameState->getValidMoves()->at(i) << " " << mcts.getMoveValue(gameState->getChild(i)) << '\n';
 		}
 		
-		std::cout << gameState->getValidMoves()->at(bestMove) << '\n';
+		std::cout << bestMove << " " << gameState->getValidMoves()->at(bestMove) << '\n';
 
-		gameState = gameState->getChild(bestMove, false);
+		int moveToPlay;
+		std::cin >> moveToPlay;
+
+		gameState = gameState->getChild(moveToPlay, false);
 
 		gameState->printGameState();
 	}

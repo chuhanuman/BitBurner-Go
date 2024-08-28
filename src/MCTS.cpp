@@ -74,7 +74,7 @@ float MCTS::simulate(GameState* potentialLeaf) {
 			
 			const StateInfo* childStateInfo = &childStateInfoIter->second;
 			//Uses UCT for score
-			float selectionScore = 1.25f * sqrtf(log(leafStateInfoIter->second.playouts) / (childStateInfo->playouts + 1));
+			float selectionScore = 1.4f * sqrtf(log(leafStateInfoIter->second.playouts) / (childStateInfo->playouts + 1));
 			if (potentialLeaf->getColor() == 'O') {
 				selectionScore += (1 + (childStateInfo->totalValue / childStateInfo->playouts)) / 2;
 			} else {

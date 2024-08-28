@@ -82,11 +82,11 @@ private:
 
 	/**
 	 * @brief Returns whether the given chain is surrounded
-	 * @param board board to check
-	 * @param index index of member of chain
+	 * @param startIndex index of member of chain
+	 * @param ignoreIndex index of cell to ignore (very useful, trust me)
 	 * @return whether the given chain is surrounded
 	 */
-	[[nodiscard]] bool isSurrounded(const std::string& board, int index) const;
+	[[nodiscard]] bool isSurrounded(int startIndex, int ignoreIndex) const;
 
 	/**
 	 * @brief Checks if the chain at the given index has no liberties and if it does destroys it
@@ -131,9 +131,9 @@ private:
 	 */
 	std::string board;
 	/**
-	 * @brief Set with previous game boards
+	 * @brief Previous game board
 	 */
-	std::unordered_set<std::string> previousBoards;
+	std::string previousBoard;
 	/**
 	 * @brief Whether the last move was a pass
 	 */

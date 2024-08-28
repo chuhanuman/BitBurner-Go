@@ -56,25 +56,42 @@ bool GameState::isValid(const int move) {
 			return false;
 		}
 
-		//Move is repeat
-        const std::string resultBoard = placePiece(move);
-        if (this->previousBoards.find(resultBoard) != this->previousBoards.end()) {
-            return false;
-        }
-
+        const bool possibleRepeat = previousBoard[move] == color;
 		const std::vector<int> neighbors = getNeighbors(move);
 
-        //Move is not suicide from empty spaces
-        if (std::any_of(neighbors.begin(), neighbors.end(), [&resultBoard](const int x){return resultBoard[x] == '.';})) {
+		//Move is not suicide from adjacent spaces
+		const bool hasAdjacentLiberty = std::any_of(neighbors.begin(), neighbors.end(), 
+			[this](const int neighbor){return board[neighbor] == '.';});
+        if (!possibleRepeat && hasAdjacentLiberty) {
             return true;
         }
 
-        //Move results in surrounded chain
-        if (isSurrounded(resultBoard, move)) {
-            return false;
+        //Move is not suicide from adjacent chain
+		const bool hasChainLiberty = std::any_of(neighbors.begin(), neighbors.end(), 
+			[this, move](const int neighbor){return board[neighbor] == color && !isSurrounded(neighbor, move);});
+        if (!possibleRepeat && hasChainLiberty) {
+            return true;
         }
+
+		//Move is not suicide from killing enemy chain
+		const bool hasKillLiberty = std::any_of(neighbors.begin(), neighbors.end(), 
+			[this, move](const int neighbor){return board[neighbor] == flipColor(color) && isSurrounded(neighbor, move);});
+        if (!possibleRepeat && hasKillLiberty) {
+            return true;
+        }
+
+		//Move is suicide
+		if (!hasAdjacentLiberty && !hasChainLiberty && !hasKillLiberty) {
+			return false;
+		}
+
+		//Move is not repeat
+		const std::string resultBoard = placePiece(move);
+		if (resultBoard != previousBoard) {
+			return true;
+		}
         
-        return true;
+        return false;
 	} else {
 		return std::find(validMoves.begin(), validMoves.end(), move) != validMoves.end();
 	}
@@ -101,14 +118,15 @@ void GameState::printGameState() const {
 	}
 }
 
-bool GameState::isSurrounded(const std::string& board, const int index) const {
+bool GameState::isSurrounded(int startIndex, int ignoreIndex) const {
 	auto const visitedBoard = new bool[board.size()];
 	for (unsigned int i = 0; i < board.size(); i++) {
 		visitedBoard[i] = false;
 	}
+	visitedBoard[ignoreIndex] = true;
 
-	const char color = board.at(index);
-    std::vector<int> stack = {index};
+	const char color = board.at(startIndex);
+    std::vector<int> stack = {startIndex};
 
     while (!stack.empty()) {
         const int curIndex = stack.back();
@@ -183,10 +201,9 @@ GameState* GameState::makeMove(const int move) const {
 
 	child->color = flipColor(color);
 	child->size = size;
-	child->previousBoards = previousBoards;
 	if (move != -1) {
+		child->previousBoard = board;
 		child->board = placePiece(move);
-		child->previousBoards.emplace(board);
 		child->passed = false;
     } else {
 		child->board = board;
