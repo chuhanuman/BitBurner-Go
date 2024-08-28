@@ -86,14 +86,14 @@ private:
 	 * @param ignoreIndex index of cell to ignore (very useful, trust me)
 	 * @return whether the given chain is surrounded
 	 */
-	[[nodiscard]] bool isSurrounded(int startIndex, int ignoreIndex) const;
+	[[nodiscard]] bool isSurrounded(unsigned int startIndex, unsigned int ignoreIndex) const;
 
 	/**
 	 * @brief Checks if the chain at the given index has no liberties and if it does destroys it
 	 * @param board board to check
 	 * @param index index of member of chain
 	 */
-	void attemptDestroyChain(std::string& board, int index) const;
+	void attemptDestroyChain(std::string& board, unsigned int index) const;
 
 	/**
 	 * @brief Returns child game state based on playing a given move
@@ -107,14 +107,14 @@ private:
 	 * @param index index of cell
 	 * @return list of neighboring cells' indices
 	 */
-	[[nodiscard]] std::vector<int> getNeighbors(int index) const;
+	[[nodiscard]] static inline std::vector<unsigned int> getNeighbors(unsigned int index);
 	
 	/**
 	 * @brief Places piece of current color at index and returns resulting board
 	 * @param index position to place piece
 	 * @return Board resulting from placing a piece
 	 */
-	[[nodiscard]] std::string placePiece(int index) const;
+	[[nodiscard]] std::string placePiece(const unsigned int index) const;
 
 	/**
 	 * @brief Populates validMoves and children
@@ -126,6 +126,18 @@ private:
 	 */
 	void endGame();
 
+	/**
+	 * @brief Board side length
+	 */
+	inline static unsigned int sideLength;
+	/**
+	 * @brief Board area
+	 */
+	inline static unsigned int area;
+	/**
+	 * @brief Neighbors array
+	 */
+	inline static std::vector<std::vector<unsigned int>> neighbors;
 	/**
 	 * @brief Game board with X marking black, O marking white, . marking empty, and # marking a wall
 	 */
@@ -142,10 +154,6 @@ private:
 	 * @brief Current player's (player who makes the next move) color 
 	 */
 	char color;
-	/**
-	 * @brief Board side length
-	 */
-	int size;
 	/**
 	 * @brief End state of game with -1 to 1 referring to the score of a game with 1 being a white wipe and -1 being a black wipe, any number less than -1 means the game isn't over
 	 */

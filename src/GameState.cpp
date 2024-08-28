@@ -8,7 +8,13 @@ GameState* GameState::newGame(const char color, const std::string& board) {
 	gameState->color = color;
 	gameState->board = board;
 	gameState->passed = false;
-	gameState->size = static_cast<int>(sqrt(board.size()));
+	area = static_cast<unsigned int>(board.size());
+	sideLength = static_cast<int>(sqrt(area));
+
+	neighbors.reserve(area);
+	for (unsigned int i = 0; i < area; i++) {
+		neighbors.push_back(getNeighbors(i));
+	}
 
 	return gameState;
 }
@@ -19,21 +25,21 @@ char GameState::flipColor(const char color) {
 
 GameState* GameState::getChild(const unsigned int moveNum, const bool keepChild) {
 	if (keepChild) {
-		if (children.at(moveNum) == nullptr) {
-			children.at(moveNum) = makeMove(validMoves.at(moveNum));
+		if (children[moveNum] == nullptr) {
+			children[moveNum] = makeMove(validMoves[moveNum]);
 		}
 
-		return children.at(moveNum);
+		return children[moveNum];
 	}
 	
-	if (children.at(moveNum) != nullptr) {
-		GameState* child = children.at(moveNum);
-		children.at(moveNum) = nullptr;
+	if (children[moveNum] != nullptr) {
+		GameState* child = children[moveNum];
+		children[moveNum] = nullptr;
 		
 		return child;
 	}
 	
-	return makeMove(validMoves.at(moveNum));
+	return makeMove(validMoves[moveNum]);
 }
 
 std::vector<int>* GameState::getValidMoves() {
@@ -58,24 +64,23 @@ bool GameState::isValid(const int move) {
 
 		const bool possibleRepeat = std::any_of(previousBoards.begin(), previousBoards.end(),
 			[this, move](auto& previousBoard){return previousBoard[move] == color;});
-		const std::vector<int> neighbors = getNeighbors(move);
 
 		//Move is not suicide from adjacent spaces
-		const bool hasAdjacentLiberty = std::any_of(neighbors.begin(), neighbors.end(), 
+		const bool hasAdjacentLiberty = std::any_of(neighbors[move].begin(), neighbors[move].end(), 
 			[this](const int neighbor){return board[neighbor] == '.';});
         if (!possibleRepeat && hasAdjacentLiberty) {
             return true;
         }
 
         //Move is not suicide from adjacent chain
-		const bool hasChainLiberty = std::any_of(neighbors.begin(), neighbors.end(), 
+		const bool hasChainLiberty = std::any_of(neighbors[move].begin(), neighbors[move].end(), 
 			[this, move](const int neighbor){return board[neighbor] == color && !isSurrounded(neighbor, move);});
         if (!possibleRepeat && hasChainLiberty) {
             return true;
         }
 
 		//Move is not suicide from killing enemy chain
-		const bool hasKillLiberty = std::any_of(neighbors.begin(), neighbors.end(), 
+		const bool hasKillLiberty = std::any_of(neighbors[move].begin(), neighbors[move].end(), 
 			[this, move](const int neighbor){return board[neighbor] == flipColor(color) && isSurrounded(neighbor, move);});
         if (!possibleRepeat && hasKillLiberty) {
             return true;
@@ -111,26 +116,26 @@ std::string GameState::getKey() const {
 }
 
 void GameState::printGameState() const {
-	for (int y = size - 1; y >= 0; y--) {
-		for (int x = 0; x < size; x++) {
-			std::cout << board[x * size + y];
+	for (int y = static_cast<int>(sideLength) - 1; y >= 0; y--) {
+		for (int x = 0; x < static_cast<int>(sideLength); x++) {
+			std::cout << board[x * sideLength + y];
 		}
 		std::cout << '\n';
 	}
 }
 
-bool GameState::isSurrounded(int startIndex, int ignoreIndex) const {
-	auto const visitedBoard = new bool[board.size()];
-	for (unsigned int i = 0; i < board.size(); i++) {
+bool GameState::isSurrounded(const unsigned int startIndex, const unsigned int ignoreIndex) const {
+	auto const visitedBoard = new bool[area];
+	for (unsigned int i = 0; i < area; i++) {
 		visitedBoard[i] = false;
 	}
 	visitedBoard[ignoreIndex] = true;
 
-	const char color = board.at(startIndex);
-    std::vector<int> stack = {startIndex};
+	const char color = board[startIndex];
+    std::vector<unsigned int> stack = {startIndex};
 
     while (!stack.empty()) {
-        const int curIndex = stack.back();
+        const unsigned int curIndex = stack.back();
 		stack.pop_back();
 
         if (visitedBoard[curIndex]) {
@@ -143,7 +148,7 @@ bool GameState::isSurrounded(int startIndex, int ignoreIndex) const {
 			delete[] visitedBoard;
             return false;
         } else if (board[curIndex] == color) {
-            for (const int neighbor : getNeighbors(curIndex)) {
+            for (const unsigned int neighbor : neighbors[curIndex]) {
                 stack.push_back(neighbor);
             }
         }
@@ -153,18 +158,18 @@ bool GameState::isSurrounded(int startIndex, int ignoreIndex) const {
 	return true;
 }
 
-void GameState::attemptDestroyChain(std::string& board, const int index) const {
-	auto const visitedBoard = new bool[board.size()];
-	for (unsigned int i = 0; i < board.size(); i++) {
+void GameState::attemptDestroyChain(std::string& board, const unsigned int index) const {
+	auto const visitedBoard = new bool[area];
+	for (unsigned int i = 0; i < area; i++) {
 		visitedBoard[i] = false;
 	}
 
-	const char color = board.at(index);
-    std::vector<int> stack = {index};
-    std::vector<int> chain = {};
+	const char color = board[index];
+    std::vector<unsigned int> stack = {index};
+    std::vector<unsigned int> chain = {};
 
     while (!stack.empty()) {
-        const int curIndex = stack.back();
+        const unsigned int curIndex = stack.back();
 		stack.pop_back();
 
         if (visitedBoard[curIndex]) {
@@ -178,7 +183,7 @@ void GameState::attemptDestroyChain(std::string& board, const int index) const {
             return;
         } else if (board[curIndex] == color) {
             chain.push_back(curIndex);
-            for (const int neighbor : getNeighbors(curIndex)) {
+            for (const unsigned int neighbor : neighbors[curIndex]) {
                 stack.push_back(neighbor);
             }
         }
@@ -201,7 +206,6 @@ GameState* GameState::makeMove(const int move) const {
 	auto const child = new GameState;
 
 	child->color = flipColor(color);
-	child->size = size;
 	child->previousBoards = previousBoards;
 	child->previousBoards.emplace(board);
 	if (move != -1) {
@@ -219,32 +223,32 @@ GameState* GameState::makeMove(const int move) const {
 	return child;
 }
 
-std::vector<int> GameState::getNeighbors(const int index) const {
-	std::vector<int> neighbors;
+std::vector<unsigned int> GameState::getNeighbors(const unsigned int index) {
+	std::vector<unsigned int> neighbors;
 
-	if (index >= size) {
-		neighbors.push_back(index - size);
+	if (index >= sideLength) {
+		neighbors.push_back(index - sideLength);
 	}
-	if (index < static_cast<int>(board.size()) - size) {
-		neighbors.push_back(index + size);
+	if (index < static_cast<int>(area) - sideLength) {
+		neighbors.push_back(index + sideLength);
 	}
-	if (index % size > 0) {
+	if (index % sideLength > 0) {
 		neighbors.push_back(index - 1);
 	}
-	if (index % size < size - 1) {
+	if (index % sideLength < sideLength - 1) {
 		neighbors.push_back(index + 1);
 	}
 
 	return neighbors;
 }
 
-std::string GameState::placePiece(const int index) const {
+std::string GameState::placePiece(const unsigned int index) const {
 	std::string newBoard = board;
-	newBoard.at(index) = color;
+	newBoard[index] = color;
 
 	const char enemyColor = flipColor(color);
-	for (const int neighbor : getNeighbors(index)) {
-		if (newBoard.at(neighbor) == enemyColor) {
+	for (const unsigned int neighbor : neighbors[index]) {
+		if (newBoard[neighbor] == enemyColor) {
 			attemptDestroyChain(newBoard, neighbor);
 		}
 	}
@@ -253,7 +257,7 @@ std::string GameState::placePiece(const int index) const {
 }
 
 void GameState::setup() {
-	for (int i = -1; i < static_cast<int>(board.size()); i++) {
+	for (int i = -1; i < static_cast<int>(area); i++) {
 		if (isValid(i)) {
 			validMoves.push_back(i);
 			children.push_back(nullptr);
@@ -266,8 +270,8 @@ void GameState::setup() {
 void GameState::endGame() {
 	float whitePoints = 0, blackPoints = 0;
 
-    auto const visitedBoard = new bool[board.size()];
-	for (unsigned int i = 0; i < board.size(); i++) {
+    auto const visitedBoard = new bool[area];
+	for (unsigned int i = 0; i < area; i++) {
 		if (board[i] == '.') {
 			visitedBoard[i] = false;
 		} else {
@@ -290,7 +294,7 @@ void GameState::endGame() {
     
     while (true) {
 		int emptyIndex = -1;
-        for (unsigned int i = 0; i < board.size(); i++) {
+        for (unsigned int i = 0; i < area; i++) {
             if (!visitedBoard[i]) {
                 emptyIndex = static_cast<int>(i);
                 break;
@@ -301,13 +305,13 @@ void GameState::endGame() {
             break;
         }
 
-        std::vector<int> stack = {emptyIndex};
+        std::vector<unsigned int> stack = {static_cast<unsigned int>(emptyIndex)};
         float chainLength = 0;
         bool whiteControl = false;
         bool blackControl = false;
 
         while (!stack.empty()) {
-            const int curIndex = stack.back();
+            const unsigned int curIndex = stack.back();
 			stack.pop_back();
 
             if (board[curIndex] == 'O') {
@@ -325,7 +329,7 @@ void GameState::endGame() {
 
             if (board[curIndex] == '.') {
                 chainLength++;
-                for (const int neighbor : getNeighbors(curIndex)) {
+                for (const unsigned int neighbor : neighbors[curIndex]) {
                     stack.push_back(neighbor);
                 }
             }
