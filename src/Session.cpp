@@ -1,6 +1,6 @@
 #include "Session.h"
 
-Session::Session(tcp::socket socket, std::string (*handleRequest)(std::string)) :
+Session::Session(tcp::socket socket, std::string (*handleRequest)(const std::string&)) :
 	socket(std::move(socket)), handleRequest(handleRequest) {
 }
 
@@ -9,6 +9,8 @@ void Session::run() {
 }
 
 void Session::doRequest() {
+    request = {};
+
     http::async_read(socket, buffer, request, beast::bind_front_handler(&Session::onRequest, shared_from_this()));
 }
 
@@ -35,8 +37,8 @@ void Session::onRequest(const beast::error_code& errorCode, std::size_t bytesTra
 
 
 void Session::doResponse(http::response<http::string_body> response) {
-    auto sp = std::make_shared<http::response<http::string_body>>(std::move(response));
-    http::async_write(socket, *sp, beast::bind_front_handler(&Session::onResponse, shared_from_this()));
+    auto const sharedResponse = std::make_shared<http::response<http::string_body>>(std::move(response));
+    http::async_write(socket, *sharedResponse, beast::bind_front_handler(&Session::onResponse, shared_from_this()));
 }
 
 void Session::onResponse(const beast::error_code& errorCode, std::size_t bytesTransferred) {

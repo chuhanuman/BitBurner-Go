@@ -2,7 +2,7 @@
 
 #include "Listener.h"
 
-Listener::Listener(net::io_context& ioc, const tcp::endpoint& endpoint, std::string (*handleRequest)(std::string)) :
+Listener::Listener(net::io_context& ioc, const tcp::endpoint& endpoint, std::string (*handleRequest)(const std::string&)) :
 	ioc(ioc), acceptor(ioc), handleRequest(handleRequest) {
 	beast::error_code errorCode;
 

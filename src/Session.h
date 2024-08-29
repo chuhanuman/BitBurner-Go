@@ -19,7 +19,7 @@ public:
 	 * @param socket socket used to communicate with client
 	 * @param handleRequest function used to act on request
 	 */
-	explicit Session(tcp::socket socket, std::string (*handleRequest)(std::string));
+	explicit Session(tcp::socket socket, std::string (*handleRequest)(const std::string&));
 
 	/**
 	 * @brief Starts up
@@ -41,7 +41,7 @@ private:
 	/**
 	 * @brief Function used to act on a request body and return a response body
 	 */
-	std::string (*handleRequest)(std::string);
+	std::string (*handleRequest)(const std::string&);
 
 	/**
 	 * @brief Sets up asynchronous waiting for request
