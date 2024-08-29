@@ -1,3 +1,12 @@
+const toString = (boardState) => {
+    let boardStateString = "";
+    for (const column of boardState) {
+        boardStateString += column;
+    }
+
+    return boardStateString;
+}
+
 /** @param {NS} ns */
 export async function main(ns) {
     while (true) {
@@ -5,12 +14,13 @@ export async function main(ns) {
 
         let endState = "temp";
         while (endState != "gameOver") {
-            let boardStateString = "";
-            for (const column of ns.go.getBoardState()) {
-                boardStateString += column;
+            let gameStateString = ((ns.go.getCurrentPlayer() == "White") ? "O" : "X") + ",";
+            gameStateString += toString(ns.go.getBoardState());
+            for (const previousBoardState of ns.go.getMoveHistory()) {
+                gameStateString += "," + toString(previousBoardState);
             }
             
-            let gameStateString = ((ns.go.getCurrentPlayer() == "White") ? "O" : "X") + boardStateString;
+            
             let response = await fetch("http://localhost:8080/", {
                 method: "POST",
                 headers: {

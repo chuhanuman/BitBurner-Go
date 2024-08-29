@@ -13,6 +13,7 @@ add_executable(console ${CONSOLE_SOURCE_FILES})
 find_package(Boost REQUIRED)
 
 set(MICROSERVICE_SOURCE_FILES
+    src/utils.h src/utils.cpp
     src/GameState.h src/GameState.cpp
     src/MCTS.h src/MCTS.cpp
     src/boostUtils.h src/boostUtils.cpp

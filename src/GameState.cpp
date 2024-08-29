@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-GameState* GameState::newGame(const char color, const std::string& board) {
+GameState* GameState::newGame(const char color, const std::string& board, const std::vector<std::string>& previousBoards) {
 	const auto gameState = new GameState;
 	gameState->color = color;
 	gameState->board = board;
@@ -14,6 +14,11 @@ GameState* GameState::newGame(const char color, const std::string& board) {
 	neighbors.reserve(area);
 	for (unsigned int i = 0; i < area; i++) {
 		neighbors.push_back(getNeighbors(i));
+	}
+
+	gameState->previousBoards.reserve(previousBoards.size());
+	for (const std::string& previousBoard : previousBoards) {
+		gameState->previousBoards.emplace(previousBoard);
 	}
 
 	return gameState;

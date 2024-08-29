@@ -22,9 +22,10 @@ public:
 	 * @brief Returns a game state created from the given parameters
 	 * @param color color of current player
 	 * @param board current board state
+	 * @param previousBoards list of previous board states
 	 * @return a new game state
 	 */
-	static GameState* newGame(char color, const std::string& board);
+	static GameState* newGame(char color, const std::string& board,  const std::vector<std::string>& previousBoards = {});
 
 	/**
 	 * @brief Returns the opposite of the color given
