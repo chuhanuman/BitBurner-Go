@@ -11,6 +11,7 @@ GameState* GameState::newGame(const char color, const std::string& board, const 
 	area = static_cast<unsigned int>(board.size());
 	sideLength = static_cast<int>(sqrt(area));
 
+	neighbors.clear();
 	neighbors.reserve(area);
 	for (unsigned int i = 0; i < area; i++) {
 		neighbors.push_back(getNeighbors(i));
