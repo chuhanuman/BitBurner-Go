@@ -14,6 +14,7 @@ int main() {
 		try {
 			MCTS mcts(5000);
 
+			std::vector<std::string> requestParts = split(request, ',');
 			const char color = requestParts.at(0).at(0);
 			const std::string& board = requestParts.at(1);
 			std::vector<std::string> previousBoards;
