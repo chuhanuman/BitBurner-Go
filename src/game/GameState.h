@@ -2,7 +2,6 @@
 #define GAME_STATE_H
 
 #include <string>
-#include <unordered_set>
 #include <vector>
 
 class GameState {
@@ -68,10 +67,16 @@ public:
 	[[nodiscard]] char getColor() const;
 
 	/**
-     * @brief Returns string version of game state made to be compact and unique not necessarily readable
-     * @return string version of game state
-     */
-	[[nodiscard]] std::string getKey() const;
+	 * @brief Returns the current board
+	 * @return current board
+	 */
+	[[nodiscard]] const std::string* getBoard() const;
+
+	/**
+	 * @brief Returns a vector with previous boards
+	 * @return a vector with previous boards
+	 */
+	[[nodiscard]] const std::vector<std::string>* getPreviousBoards() const;
 	
 	/**
 	 * @brief Prints the game state to console
@@ -94,7 +99,7 @@ private:
 	 * @param board board to check
 	 * @param index index of member of chain
 	 */
-	void attemptDestroyChain(std::string& board, unsigned int index) const;
+	static void attemptDestroyChain(std::string& board, unsigned int index);
 
 	/**
 	 * @brief Returns child game state based on playing a given move
@@ -102,13 +107,6 @@ private:
 	 * @return child game state
 	 */
 	[[nodiscard]] GameState* makeMove(int move) const;
-
-	/**
-	 * @brief Returns a list of a given cell's neighbors' indices
-	 * @param index index of cell
-	 * @return list of neighboring cells' indices
-	 */
-	[[nodiscard]] static inline std::vector<unsigned int> getNeighbors(unsigned int index);
 	
 	/**
 	 * @brief Places piece of current color at index and returns resulting board
@@ -128,25 +126,13 @@ private:
 	void endGame();
 
 	/**
-	 * @brief Board side length
-	 */
-	inline static unsigned int sideLength;
-	/**
-	 * @brief Board area
-	 */
-	inline static unsigned int area;
-	/**
-	 * @brief Neighbors array
-	 */
-	inline static std::vector<std::vector<unsigned int>> neighbors;
-	/**
 	 * @brief Game board with X marking black, O marking white, . marking empty, and # marking a wall
 	 */
 	std::string board;
 	/**
-	 * @brief Previous game board
+	 * @brief Previous game boards
 	 */
-	std::unordered_set<std::string> previousBoards;
+	std::vector<std::string> previousBoards;
 	/**
 	 * @brief Whether the last move was a pass
 	 */

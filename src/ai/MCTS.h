@@ -3,9 +3,8 @@
 
 #include <random>
 #include <unordered_map>
-#include <vector>
 
-#include "GameState.h"
+#include "../game/GameState.h"
 
 class MCTS {
 public:

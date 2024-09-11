@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "GameState.h"
-#include "MCTS.h"
+#include "game/GameState.h"
+#include "ai/MCTS.h"
 
 int main() {
 	MCTS mcts(10000);

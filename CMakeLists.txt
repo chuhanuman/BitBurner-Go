@@ -1,21 +1,31 @@
 cmake_minimum_required(VERSION 3.14)
 project(HexChess)
 
+list(APPEND CMAKE_PREFIX_PATH "C:\\libtorch")
+
+find_package(Torch REQUIRED)
+
 set(CMAKE_CXX_STANDARD 17)
     
 set(CONSOLE_SOURCE_FILES
-    src/GameState.h src/GameState.cpp
-    src/MCTS.h src/MCTS.cpp
+    src/game/GameStateConstants.h
+    src/game/GameState.h src/game/GameState.cpp
+    src/ai/GameStateData.h src/ai/GameStateData.cpp
+    src/ai/Example.h src/ai/Example.cpp
+    src/ai/Net.h
+    src/ai/NeuralNetwork.h src/ai/NeuralNetwork.cpp
+    src/ai/MCTS.h src/ai/MCTS.cpp
     src/console.cpp
 )
 add_executable(console ${CONSOLE_SOURCE_FILES})
+target_link_libraries(console "${TORCH_LIBRARIES}")
 
 find_package(Boost REQUIRED)
 
 set(MICROSERVICE_SOURCE_FILES
     src/utils.h src/utils.cpp
-    src/GameState.h src/GameState.cpp
-    src/MCTS.h src/MCTS.cpp
+    src/game/GameState.h src/game/GameState.cpp
+    src/ai/MCTS.h src/ai/MCTS.cpp
     src/boostUtils.h src/boostUtils.cpp
     src/Session.h src/Session.cpp
     src/Listener.h src/Listener.cpp
@@ -24,3 +34,17 @@ set(MICROSERVICE_SOURCE_FILES
 add_executable(microservice ${MICROSERVICE_SOURCE_FILES})
 target_include_directories(microservice PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(microservice ${Boost_LIBRARIES})
+target_link_libraries(microservice "${TORCH_LIBRARIES}")
+
+set(TRAINER_SOURCE_FILES
+    src/game/GameState.h src/game/GameState.cpp
+    src/ai/MCTS.h src/ai/MCTS.cpp
+    src/trainer.cpp
+)
+add_executable(trainer ${TRAINER_SOURCE_FILES})
+target_link_libraries(trainer "${TORCH_LIBRARIES}")
+
+file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
+add_custom_command(TARGET console POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:trainer>)
+add_custom_command(TARGET microservice POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:trainer>)
+add_custom_command(TARGET trainer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:trainer>)
