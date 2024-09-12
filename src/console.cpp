@@ -3,9 +3,14 @@
 #include "game/GameState.h"
 #include "ai/MCTS.h"
 
-int main() {
-	NeuralNetwork nn;
-	MCTS mcts(&nn, 100);
+int main(int argc, char* argv[]) {
+	NeuralNetwork neuralNetwork;
+	MCTS mcts(&neuralNetwork, 100);
+	if (argc >= 2) {
+		if (!neuralNetwork.load(argv[1])) {
+			std::cout << "ERROR: Starting current model did not load correctly from " << argv[1] << '\n';
+		}
+	}
 
 	GameState* root = GameState::newGame('X', "#...#.....#.O...........#");
 	GameState* gameState = root;

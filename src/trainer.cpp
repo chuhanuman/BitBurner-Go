@@ -67,6 +67,7 @@ int main(int argc, char* argv[]) {
 			lout.flush();
 
 			std::ofstream exout("gameMCTSTemp.ex", std::ios::app);
+			std::ofstream gmout("multiGameMCTSTemp.gm", std::ios::app);
 
 			for (int episode = 0; episode < NUM_EPISODES; episode++) {
 				GameState* curGameState = GameState::newGame('O', GameState::getRandomBoard(rng));
@@ -121,10 +122,19 @@ int main(int argc, char* argv[]) {
 				Example::save(exout, Example::load(turnInformation));
 				exout.flush();
 
+				gmout << std::fixed;
+				gmout << result << '\n';
+				gmout << std::defaultfloat;
+				gmout.flush();
+
+				lout << "Finished " << (episode + 1) << " episode(s) in " << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes." << '\n';
+				lout.flush();
+
 				delete curGameState;
 			}
 
 			exout.close();
+			gmout.close();
 
 			fin.open("gameMCTSTemp.ex");
 			examples = Example::load(fin);

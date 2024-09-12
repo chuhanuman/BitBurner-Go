@@ -14,7 +14,7 @@ float MCTS::getMoveValue(const GameState* gameState) {
 		return gameStateIter->second.totalValue / gameStateIter->second.visits;
 	}
 	
-	return 0;
+	return -3;
 }
 
 std::vector<float> MCTS::getMoveProbabilities(GameState* gameState) {
