@@ -15,6 +15,7 @@ set(CONSOLE_SOURCE_FILES
     src/ai/Net.h
     src/ai/NeuralNetwork.h src/ai/NeuralNetwork.cpp
     src/ai/MCTS.h src/ai/MCTS.cpp
+    src/utils.h src/utils.cpp
     src/console.cpp
 )
 add_executable(console ${CONSOLE_SOURCE_FILES})
@@ -37,14 +38,25 @@ target_link_libraries(microservice ${Boost_LIBRARIES})
 target_link_libraries(microservice "${TORCH_LIBRARIES}")
 
 set(TRAINER_SOURCE_FILES
+    src/game/GameStateConstants.h
     src/game/GameState.h src/game/GameState.cpp
+    src/ai/GameStateData.h src/ai/GameStateData.cpp
+    src/ai/Example.h src/ai/Example.cpp
+    src/ai/Net.h
+    src/ai/NeuralNetwork.h src/ai/NeuralNetwork.cpp
     src/ai/MCTS.h src/ai/MCTS.cpp
+    src/utils.h src/utils.cpp
     src/trainer.cpp
 )
 add_executable(trainer ${TRAINER_SOURCE_FILES})
 target_link_libraries(trainer "${TORCH_LIBRARIES}")
 
 file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
-add_custom_command(TARGET console POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:trainer>)
-add_custom_command(TARGET microservice POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:trainer>)
+add_custom_command(TARGET console POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:console>)
+add_custom_command(TARGET microservice POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:microservice>)
 add_custom_command(TARGET trainer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${TORCH_DLLS} $<TARGET_FILE_DIR:trainer>)
+
+file(GLOB OTHER_DLLS "dlls/*.dll")
+add_custom_command(TARGET console POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OTHER_DLLS} $<TARGET_FILE_DIR:console>)
+add_custom_command(TARGET microservice POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OTHER_DLLS} $<TARGET_FILE_DIR:microservice>)
+add_custom_command(TARGET trainer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OTHER_DLLS} $<TARGET_FILE_DIR:trainer>)

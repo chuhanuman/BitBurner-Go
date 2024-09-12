@@ -2,7 +2,7 @@
 
 std::vector<uint8_t> toVector(const GameState* gameState) {
 	std::vector<uint8_t> data;
-	data.resize(GAME_STATE_DATA_LENGTH);
+	data.reserve(GAME_STATE_DATA_LENGTH);
 	const bool white = gameState->getColor() == 'O';
 	const std::string* board = gameState->getBoard();
 	const std::vector<std::string>* previousBoards = gameState->getPreviousBoards();

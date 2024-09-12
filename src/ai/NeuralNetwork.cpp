@@ -1,10 +1,8 @@
-#include <torch/torch.h>
-
 #include <algorithm>
 
-#include "NeuralNetwork.h"
-
 #include "GameStateData.h"
+
+#include "NeuralNetwork.h"
 
 std::pair<std::vector<float>, float> NeuralNetwork::predict(const GameState* gameState) {
 	Device device = torch::cuda::is_available() ? torch::Device(kCUDA) : Device(kCPU);
@@ -13,9 +11,10 @@ std::pair<std::vector<float>, float> NeuralNetwork::predict(const GameState* gam
 	net.eval();
 	net.to(device);
 
-	std::vector<uint8_t> gameStateData = toVector(gameState);
+	std::vector<uint8_t> binaryGameState = toVector(gameState);
+	std::vector<float> gameStateData(binaryGameState.begin(), binaryGameState.end());
 
-	const Tensor tGameState = torch::from_blob(gameStateData.data(), {GAME_STATE_DATA_SIZE[0], GAME_STATE_DATA_SIZE[1], GAME_STATE_DATA_SIZE[2]}, dtype(kBool)).clone().to(device);
+	const Tensor tGameState = torch::from_blob(gameStateData.data(), {GAME_STATE_DATA_SIZE[0], GAME_STATE_DATA_SIZE[1], GAME_STATE_DATA_SIZE[2]}).clone().to(device);
 	
 	std::vector<Tensor> results = net.forward(tGameState);
 	results.at(0) = results.at(0).exp();

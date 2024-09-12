@@ -1,4 +1,4 @@
-#include "GameState.h"
+#include "game/GameState.h"
 #include "ai/MCTS.h"
 #include "Listener.h"
 #include "utils.h"

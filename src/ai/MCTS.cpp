@@ -1,6 +1,6 @@
 #include "MCTS.h"
 
-MCTS::MCTS(const unsigned int simulations) {
+MCTS::MCTS(NeuralNetwork* neuralNetwork, const unsigned int simulations) : neuralNetwork(neuralNetwork) {
 	if (simulations < 1) {
 		this->simulations = 1;
 	} else {
@@ -11,25 +11,57 @@ MCTS::MCTS(const unsigned int simulations) {
 float MCTS::getMoveValue(const GameState* gameState) {
 	auto const gameStateIter = stateInfos.find(gameState);
 	if (gameStateIter != stateInfos.end()) {
-		return gameStateIter->second.totalValue / gameStateIter->second.playouts;
+		return gameStateIter->second.totalValue / gameStateIter->second.visits;
 	}
 	
 	return 0;
 }
 
+std::vector<float> MCTS::getMoveProbabilities(GameState* gameState) {
+	runSimulations(gameState);
+
+	float totalSimulations = 1;
+	if (stateInfos.find(gameState) != stateInfos.end()) {
+		totalSimulations = stateInfos.at(gameState).visits;
+	}
+
+	std::vector<float> newMoveProbabilities;
+	newMoveProbabilities.resize(NUM_MOVES);
+	for (int i = 0; i < NUM_MOVES; i++) {
+		newMoveProbabilities[i] = 0;
+	}
+
+	for (int i = 0; i < gameState->getValidMoves()->size(); i++) {
+		auto const gameStateIter = stateInfos.find(gameState);
+		if (gameStateIter != stateInfos.end()) {
+			newMoveProbabilities[gameState->getValidMoves()->at(i) + 1] = gameStateIter->second.visits / totalSimulations;
+		}
+	}
+
+	return newMoveProbabilities;
+}
+
 unsigned int MCTS::getBestMove(GameState* gameState) {
 	runSimulations(gameState);
+
+	float totalSimulations = 1;
+	if (stateInfos.find(gameState) != stateInfos.end()) {
+		totalSimulations = stateInfos.at(gameState).visits;
+	}
 	
 	unsigned int bestMove = 0;
-	float bestMoveValue = -1;
+	float mostVisits = -1;
 	for (unsigned int i = 0; i < gameState->getValidMoves()->size(); i++) {
-		float moveValue = getMoveValue(gameState->getChild(i));
-		if (gameState->getColor() == 'X') {
-			moveValue = 1 - moveValue;
+		float visits;
+		auto const gameStateIter = stateInfos.find(gameState);
+		if (gameStateIter != stateInfos.end()) {
+			visits = gameStateIter->second.visits / totalSimulations;
+		} else {
+			visits = 0;
 		}
 
-		if (moveValue > bestMoveValue) {
-			bestMoveValue = moveValue;
+		if (visits > mostVisits) {
+			mostVisits = visits;
 			bestMove = i;
 		}
 	}
@@ -46,19 +78,18 @@ void MCTS::reset() {
 }
 
 float MCTS::simulate(GameState* potentialLeaf) {
-	float value;
+	float value = -1;
 	
 	auto leafStateInfoIter = stateInfos.find(potentialLeaf);
 	const float endState = potentialLeaf->getEndState();
 	if (leafStateInfoIter == stateInfos.end()) {
 		//Evaluates leaf
-		value = playout(potentialLeaf);
-		
+		const std::pair<std::vector<float>, float> result = neuralNetwork->predict(potentialLeaf);
+		value = result.second;
+
 		StateInfo stateInfo;
+		stateInfo.validMoveProbabilities = result.first;
 		leafStateInfoIter = stateInfos.emplace(potentialLeaf, stateInfo).first;
-		
-		//Shuffles moves because the first unexplored move is always selected first
-		std::shuffle(potentialLeaf->getValidMoves()->begin(), potentialLeaf->getValidMoves()->end(), rng);
 	} else if (endState >= -1) {
 		value = endState;
 	} else {
@@ -66,19 +97,22 @@ float MCTS::simulate(GameState* potentialLeaf) {
 		float bestSelectionScore = -1;
 		unsigned int bestSelection = 0;
 		for (unsigned int i = 0; i < potentialLeaf->getValidMoves()->size(); i++) {
+			float selectionScore;
+
 			auto childStateInfoIter = stateInfos.find(potentialLeaf->getChild(i));
-			if (childStateInfoIter == stateInfos.end()) {
-				bestSelection = i;
-				break;
-			}
-			
-			const StateInfo* childStateInfo = &childStateInfoIter->second;
-			//Uses UCT for score
-			float selectionScore = 1.4f * sqrtf(log(leafStateInfoIter->second.playouts) / (childStateInfo->playouts + 1));
-			if (potentialLeaf->getColor() == 'O') {
-				selectionScore += (1 + (childStateInfo->totalValue / childStateInfo->playouts)) / 2;
+			if (childStateInfoIter != stateInfos.end()) {
+				float childValue;
+				if (potentialLeaf->getColor() == 'O') {
+					childValue = (1 + (childStateInfoIter->second.totalValue / childStateInfoIter->second.visits)) / 2;
+				} else {
+					childValue = (1 - (childStateInfoIter->second.totalValue / childStateInfoIter->second.visits)) / 2;
+				}
+				
+				//Uses PUCT
+				selectionScore = childValue + 1.4 * leafStateInfoIter->second.validMoveProbabilities.at(i) * sqrtf(leafStateInfoIter->second.visits + 1) / (childStateInfoIter->second.visits + 1);
 			} else {
-				selectionScore += (1 - (childStateInfo->totalValue / childStateInfo->playouts)) / 2;
+				//Substitutes 0.5 for childValue
+				selectionScore = 0.5f + 1.4 * leafStateInfoIter->second.validMoveProbabilities.at(i) * sqrtf(leafStateInfoIter->second.visits + 1);
 			}
 
 			if (selectionScore > bestSelectionScore) {
@@ -92,23 +126,9 @@ float MCTS::simulate(GameState* potentialLeaf) {
 	}
 
 	//Updates values
-	leafStateInfoIter->second.playouts++;
+	leafStateInfoIter->second.visits++;
 	leafStateInfoIter->second.totalValue += value;
 
-	return value;
-}
-
-float MCTS::playout(GameState* gameState) {
-	const float endState = gameState->getEndState();
-	if (endState >= -1) {
-		return endState;
-	}
-
-	std::uniform_int_distribution<int> distribution(0, static_cast<int>(gameState->getValidMoves()->size() - 1));
-	GameState* child = gameState->getChild(distribution(rng), false);
-	const float value = playout(child);
-	
-	delete child;
 	return value;
 }
 

@@ -4,7 +4,8 @@
 #include "ai/MCTS.h"
 
 int main() {
-	MCTS mcts(10000);
+	NeuralNetwork nn;
+	MCTS mcts(&nn, 100);
 
 	GameState* root = GameState::newGame('X', "#...#.....#.O...........#");
 	GameState* gameState = root;

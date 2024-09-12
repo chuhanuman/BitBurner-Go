@@ -1,6 +1,8 @@
 #ifndef MCTS_H
 #define MCTS_H
 
+#include "NeuralNetwork.h"
+
 #include <random>
 #include <unordered_map>
 
@@ -10,9 +12,10 @@ class MCTS {
 public:
 	/**
 	 * @brief Constructs a new MCTS object with the given number of simulations with a minimum of 1
+	 * @param neuralNetwork neural network used to predict probabilities and value of game states
 	 * @param simulations number of simulations to run each time
 	 */
-	explicit MCTS(unsigned int simulations);
+	explicit MCTS(NeuralNetwork* neuralNetwork, unsigned int simulations);
 	
 	/**
 	 * @brief Returns the average value of a game state
@@ -20,6 +23,13 @@ public:
 	 * @return the average value of a game state
 	 */
 	float getMoveValue(const GameState* gameState);
+
+	/**
+	 * @brief Runs simulations on given game state and returns move probabilities corresponding to the number of times each move was visited
+	 * @param gameState game state to start simulations on
+	 * @return list of probabilities for each move
+	 */
+	std::vector<float> getMoveProbabilities(GameState* gameState);
 
 	/**
 	 * @brief Runs simulations on given game state and returns the best move which is the move with the highest average value
@@ -41,13 +51,17 @@ public:
 private:
 	struct StateInfo {
 		/**
-		 * @brief The number of playouts run by the corresponding game state
+		 * @brief Holds the probabilities of making each valid move given by a neural network normalized so that the probabilities add up to one
 		 */
-		float playouts = 0;
+		std::vector<float> validMoveProbabilities;
+		/**
+		 * @brief The number of times the corresponding game state was visited by a parent
+		 */
+		float visits = 0.0f;
 		/**
 		 * @brief The total value from all of the simulations that went past the corresponding game state
 		 */
-		float totalValue = 0;
+		float totalValue = 0.0f;
 	};
 	
 	/**
@@ -56,20 +70,17 @@ private:
 	 * @return final value of simulation
 	 */
 	float simulate(GameState* potentialLeaf);
-	
-	/**
-	 * @brief Plays out given game state to its end
-	 * @param gameState game state to play out
-	 * @return end state value
-	 */
-	static float playout(GameState* gameState);
 
 	/**
 	 * @brief Runs simulations on given game state
 	 * @param gameState game state to start simulations on
 	 */
 	void runSimulations(GameState* gameState);
-	
+
+	/**
+	 * @brief The neural network used to predict the value and move probabilities of game boards
+	 */
+	NeuralNetwork* neuralNetwork;
 	/**
 	 * @brief The number of simulations to perform each time MCTS is run
 	 */

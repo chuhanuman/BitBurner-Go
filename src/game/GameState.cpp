@@ -9,11 +9,34 @@ GameState* GameState::newGame(const char color, const std::string& board, const 
 	const auto gameState = new GameState;
 	gameState->color = color;
 	gameState->board = board;
-	gameState->passed = std::find(previousBoards.begin(), previousBoards.end(), board) == previousBoards.end();
+	gameState->passed = std::find(previousBoards.begin(), previousBoards.end(), board) != previousBoards.end();
 
 	gameState->previousBoards = previousBoards;
 
 	return gameState;
+}
+
+std::string GameState::getRandomBoard(std::mt19937_64& rng) {
+	std::string board;
+	std::uniform_real_distribution distribution(0.0, 1.0);
+	for (unsigned int i = 0; i < AREA; i++) {
+		double value = distribution(rng);
+		if (value <= 0.001) {
+			//0.1% chance
+			board.push_back('X');
+		} else if (value <= 0.003) {
+			//0.2% chance
+			board.push_back('O');
+		} else if (value <= 0.15) {
+			//10.7% chance
+			board.push_back('#');
+		} else {
+			//89% chance
+			board.push_back('.');
+		}
+	}
+
+	return board;
 }
 
 char GameState::flipColor(const char color) {

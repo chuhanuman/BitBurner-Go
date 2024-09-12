@@ -1,6 +1,7 @@
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
 
+#include <random>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,13 @@ public:
 	 * @return a new game state
 	 */
 	static GameState* newGame(char color, const std::string& board,  const std::vector<std::string>& previousBoards = {});
+
+	/**
+	 * @brief Returns a game board with random elements
+	 * @param rng random number generator to use
+	 * @return a game board with random elements
+	 */
+	static std::string getRandomBoard(std::mt19937_64& rng);
 
 	/**
 	 * @brief Returns the opposite of the color given

@@ -44,6 +44,6 @@ inline std::vector<unsigned int>* getNeighbors() {
 /**
  * @brief Neighbors array
  */
-const std::vector<unsigned int>* NEIGHBORS = getNeighbors();
+const inline std::vector<unsigned int>* NEIGHBORS = getNeighbors();
 
 #endif
