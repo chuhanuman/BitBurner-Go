@@ -12,30 +12,29 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	GameState* root = GameState::newGame('X', "#...#.....#.O...........#");
-	GameState* gameState = root;
+	GameState* gameState = GameState::newGame('X', "#...#.....#.O...........#");
 	gameState->printGameState();
 
 	while (gameState->getEndState() < -1) {
-		const unsigned int bestMove = mcts.getBestMove(gameState);
-
+		std::vector<float> moveProbabilities = mcts.getMoveProbabilities(gameState);
 		for (unsigned int i = 0; i < gameState->getValidMoves()->size(); i++) {
-			std::cout << i << " " << gameState->getValidMoves()->at(i) << " " << mcts.getMoveValue(gameState->getChild(i)) << '\n';
+			std::cout << i << " " << gameState->getValidMoves()->at(i) << " " << moveProbabilities[gameState->getValidMoves()->at(i) + 1] << " " << mcts.getMoveValue(gameState->getChild(i)) << '\n';
 		}
-		
-		std::cout << bestMove << " " << gameState->getValidMoves()->at(bestMove) << '\n';
 
 		int moveToPlay;
 		std::cin >> moveToPlay;
 
-		gameState = gameState->getChild(moveToPlay, false);
+		GameState* childGameState = gameState->getChild(moveToPlay, false);
+		delete gameState;
+		gameState = childGameState;
 
 		gameState->printGameState();
+		mcts.reset();
 	}
 
 	std::cout << gameState->getEndState() << '\n';
 
-	delete root;
+	delete gameState;
 
 	return 0;
 }
