@@ -27,14 +27,14 @@ std::vector<float> MCTS::getMoveProbabilities(GameState* gameState) {
 
 	std::vector<float> newMoveProbabilities;
 	newMoveProbabilities.resize(NUM_MOVES);
-	for (int i = 0; i < NUM_MOVES; i++) {
+	for (unsigned int i = 0; i < NUM_MOVES; i++) {
 		newMoveProbabilities[i] = 0;
 	}
 
-	for (int i = 0; i < gameState->getValidMoves()->size(); i++) {
-		auto const gameStateIter = stateInfos.find(gameState);
-		if (gameStateIter != stateInfos.end()) {
-			newMoveProbabilities[gameState->getValidMoves()->at(i) + 1] = gameStateIter->second.visits / totalSimulations;
+	for (unsigned int i = 0; i < gameState->getValidMoves()->size(); i++) {
+		auto const childStateIter = stateInfos.find(gameState->getChild(i));
+		if (childStateIter != stateInfos.end()) {
+			newMoveProbabilities[gameState->getValidMoves()->at(i) + 1] = childStateIter->second.visits / totalSimulations;
 		}
 	}
 
@@ -53,9 +53,9 @@ unsigned int MCTS::getBestMove(GameState* gameState) {
 	float mostVisits = -1;
 	for (unsigned int i = 0; i < gameState->getValidMoves()->size(); i++) {
 		float visits;
-		auto const gameStateIter = stateInfos.find(gameState);
-		if (gameStateIter != stateInfos.end()) {
-			visits = gameStateIter->second.visits / totalSimulations;
+		auto const childStateIter = stateInfos.find(gameState->getChild(i));
+		if (childStateIter != stateInfos.end()) {
+			visits = childStateIter->second.visits / totalSimulations;
 		} else {
 			visits = 0;
 		}

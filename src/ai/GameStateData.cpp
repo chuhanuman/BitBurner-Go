@@ -28,7 +28,7 @@ std::vector<uint8_t> toVector(const GameState* gameState) {
 					}
 				} else {
 					if (i / 2 == 1) {
-						//Current board's white spaces
+						//Current board's black spaces
 						data.push_back((*board)[j * SIDE_LENGTH + k] == 'X');
 					} else if (i / 2 - 2 < previousBoards->size()) {
 						//Previous board's black spaces
