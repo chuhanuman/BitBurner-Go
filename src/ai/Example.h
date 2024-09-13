@@ -52,19 +52,25 @@ public:
 	 * @return value of example
 	 */
 	[[nodiscard]] float getValue() const;
+
+	/**
+	 * @brief Prints self to stream
+	 * @param out stream to print to
+	 */
+	void display(std::ostream& out) const;
 private:
 	/**
-	 * @brief Game state in example in vector form
+	 * @brief Game state in vector form
 	 */
 	std::vector<uint8_t> gameStateData;
 	/**
-	 * @brief Move probabilities for game state in the form {moveIndex, probability}
+	 * @brief Move probabilities for game state
 	 */
 	std::vector<float> moveProbabilities;
 	/**
 	 * @brief Value of game state
 	 */
-	float value;
+	float value = -3;
 };
 
 #endif

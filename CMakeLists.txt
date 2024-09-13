@@ -21,6 +21,16 @@ set(CONSOLE_SOURCE_FILES
 add_executable(console ${CONSOLE_SOURCE_FILES})
 target_link_libraries(console "${TORCH_LIBRARIES}")
 
+set(READER_SOURCE_FILES
+    src/game/GameStateConstants.h
+    src/game/GameState.h src/game/GameState.cpp
+    src/ai/GameStateData.h src/ai/GameStateData.cpp
+    src/ai/Example.h src/ai/Example.cpp
+    src/utils.h src/utils.cpp
+    src/reader.cpp
+)
+add_executable(reader ${READER_SOURCE_FILES})
+
 find_package(Boost REQUIRED)
 
 set(MICROSERVICE_SOURCE_FILES

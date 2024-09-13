@@ -102,3 +102,16 @@ std::vector<float> Example::getMoveProbabilities() {
 float Example::getValue() const {
 	return value;
 }
+
+void Example::display(std::ostream& out) const {
+	GameState* gameState = getGameState(gameStateData);
+	out << *gameState;
+
+	for (const int move : *gameState->getValidMoves()) {
+		out << move << " " << moveProbabilities[move + 1] << '\n';
+	}
+
+	out << value << '\n';
+
+	delete gameState;
+}

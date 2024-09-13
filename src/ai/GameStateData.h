@@ -20,4 +20,11 @@ constexpr int GAME_STATE_DATA_LENGTH = GAME_STATE_DATA_SIZE[0] * GAME_STATE_DATA
  */
 std::vector<uint8_t> toVector(const GameState* gameState);
 
+/**
+ * @brief Converts game state data back into a game state ignoring previous boards
+ * @param data vector representation of game state
+ * @return game state
+ */
+GameState* getGameState(const std::vector<uint8_t>& data);
+
 #endif

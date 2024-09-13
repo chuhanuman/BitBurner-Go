@@ -140,12 +140,18 @@ const std::vector<std::string>* GameState::getPreviousBoards() const {
 }
 
 void GameState::printGameState() const {
+	std::cout << this;
+}
+
+std::ostream& operator<<(std::ostream& out, const GameState& gameState) {
 	for (int y = static_cast<int>(SIDE_LENGTH) - 1; y >= 0; y--) {
 		for (int x = 0; x < static_cast<int>(SIDE_LENGTH); x++) {
-			std::cout << board[x * SIDE_LENGTH + y];
+			out << gameState.board[x * SIDE_LENGTH + y];
 		}
-		std::cout << '\n';
+		out << '\n';
 	}
+
+	return out;
 }
 
 bool GameState::isSurrounded(const unsigned int startIndex, const unsigned int ignoreIndex) const {

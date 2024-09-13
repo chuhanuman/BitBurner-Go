@@ -90,6 +90,14 @@ public:
 	 * @brief Prints the game state to console
 	 */
 	void printGameState() const;
+
+	/**
+	 * @brief Overrides << operator for output streams and prints game state
+	 * @param out output stream to use
+	 * @param gameState game state to print
+	 * @return output stream
+	 */
+	friend std::ostream& operator<<(std::ostream& out, const GameState& gameState);
 private:
 	//Prevents constructor from being used outside GameState and subclasses
 	GameState() = default;
