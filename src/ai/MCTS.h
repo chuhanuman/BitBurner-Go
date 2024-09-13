@@ -1,6 +1,7 @@
 #ifndef MCTS_H
 #define MCTS_H
 
+#include "MCTSConstants.h"
 #include "NeuralNetwork.h"
 
 #include <random>
@@ -78,6 +79,12 @@ private:
 	void runSimulations(GameState* gameState);
 
 	/**
+	 * @brief Adds dirichlet noise to game state's move probabilities
+	 * @param gameState game state to add noise to
+	 */
+	void MCTS::addDirichletNoise(GameState* gameState);
+
+	/**
 	 * @brief The neural network used to predict the value and move probabilities of game boards
 	 */
 	NeuralNetwork* neuralNetwork;
@@ -97,6 +104,10 @@ private:
 	 * @brief Used to generate random unsigned 64 bit integers
 	 */
 	inline static std::mt19937_64 rng = std::mt19937_64(seeder());
+	/**
+	 * @brief Used to generate elements in dirichlet distribution
+	 */
+	inline static std::gamma_distribution<> gamma = std::gamma_distribution<>(ALPHA, 1);
 };
 
 #endif

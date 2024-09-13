@@ -20,7 +20,7 @@ std::string GameState::getRandomBoard(std::mt19937_64& rng) {
 	std::string board;
 	std::uniform_real_distribution distribution(0.0, 1.0);
 	for (unsigned int i = 0; i < AREA; i++) {
-		double value = distribution(rng);
+		const double value = distribution(rng);
 		if (value <= 0.001) {
 			//0.1% chance
 			board.push_back('X');
@@ -140,7 +140,7 @@ const std::vector<std::string>* GameState::getPreviousBoards() const {
 }
 
 void GameState::printGameState() const {
-	std::cout << this;
+	std::cout << *this;
 }
 
 std::ostream& operator<<(std::ostream& out, const GameState& gameState) {

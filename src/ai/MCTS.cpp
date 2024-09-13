@@ -18,6 +18,7 @@ float MCTS::getMoveValue(const GameState* gameState) {
 }
 
 std::vector<float> MCTS::getMoveProbabilities(GameState* gameState) {
+	addDirichletNoise(gameState);
 	runSimulations(gameState);
 
 	float totalSimulations = 1;
@@ -107,12 +108,14 @@ float MCTS::simulate(GameState* potentialLeaf) {
 				} else {
 					childValue = (1 - (childStateInfoIter->second.totalValue / childStateInfoIter->second.visits)) / 2;
 				}
+
+
 				
 				//Uses PUCT
-				selectionScore = childValue + 1.4 * leafStateInfoIter->second.validMoveProbabilities.at(i) * sqrtf(leafStateInfoIter->second.visits + 1) / (childStateInfoIter->second.visits + 1);
+				selectionScore = childValue + EXPLORATION_PARAMETER * leafStateInfoIter->second.validMoveProbabilities.at(i) * sqrtf(leafStateInfoIter->second.visits + 1) / (childStateInfoIter->second.visits + 1);
 			} else {
 				//Substitutes 0.5 for childValue
-				selectionScore = 0.5f + 1.4 * leafStateInfoIter->second.validMoveProbabilities.at(i) * sqrtf(leafStateInfoIter->second.visits + 1);
+				selectionScore = 0.5f + EXPLORATION_PARAMETER * leafStateInfoIter->second.validMoveProbabilities.at(i) * sqrtf(leafStateInfoIter->second.visits + 1);
 			}
 
 			if (selectionScore > bestSelectionScore) {
@@ -135,5 +138,32 @@ float MCTS::simulate(GameState* potentialLeaf) {
 void MCTS::runSimulations(GameState* gameState) {
 	for (unsigned int i = 0; i < simulations; i++) {
 		simulate(gameState);
+	}
+}
+
+void MCTS::addDirichletNoise(GameState* gameState) {
+	auto stateInfoIter = stateInfos.find(gameState);
+	if (stateInfoIter == stateInfos.end()) {
+		//Evaluates leaf
+		const std::pair<std::vector<float>, float> result = neuralNetwork->predict(gameState);
+
+		StateInfo stateInfo;
+		stateInfo.visits = 1;
+		stateInfo.validMoveProbabilities = result.first;
+		stateInfo.totalValue = result.second;
+		stateInfoIter = stateInfos.emplace(gameState, stateInfo).first;
+	}
+
+	std::vector<float> dirichlet;
+	dirichlet.resize(gameState->getValidMoves()->size());
+	float sum = 0.0f;
+	for (float& probability : dirichlet) {
+		probability = static_cast<float>(gamma(rng));
+		sum += probability;
+	}
+
+	for (int i = 0; i < dirichlet.size(); i++) {
+		const float prior = stateInfoIter->second.validMoveProbabilities.at(i);
+		stateInfoIter->second.validMoveProbabilities.at(i) = (1 - DIRICHLET_SCALAR) * prior + DIRICHLET_SCALAR * (dirichlet.at(i) / sum);
 	}
 }

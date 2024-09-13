@@ -14,6 +14,7 @@ set(CONSOLE_SOURCE_FILES
     src/ai/Example.h src/ai/Example.cpp
     src/ai/Net.h
     src/ai/NeuralNetwork.h src/ai/NeuralNetwork.cpp
+    src/ai/MCTSConstants.h
     src/ai/MCTS.h src/ai/MCTS.cpp
     src/utils.h src/utils.cpp
     src/console.cpp
@@ -54,6 +55,7 @@ set(TRAINER_SOURCE_FILES
     src/ai/Example.h src/ai/Example.cpp
     src/ai/Net.h
     src/ai/NeuralNetwork.h src/ai/NeuralNetwork.cpp
+    src/ai/MCTSConstants.h
     src/ai/MCTS.h src/ai/MCTS.cpp
     src/utils.h src/utils.cpp
     src/trainer.cpp
