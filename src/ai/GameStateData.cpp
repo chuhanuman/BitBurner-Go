@@ -56,15 +56,15 @@ GameState* getGameState(const std::vector<uint8_t>& data) {
 		for (unsigned int j = 0; j < GAME_STATE_DATA_SIZE[1]; j++) {
 			for (unsigned int k = 0; k < GAME_STATE_DATA_SIZE[2]; k++) {
 				if (i == 1) {
-					if (data.at(i * GAME_STATE_DATA_SIZE[0] * GAME_STATE_DATA_SIZE[1] + j * GAME_STATE_DATA_SIZE[1] + k)) {
+					if (data.at(i * GAME_STATE_DATA_SIZE[1] * GAME_STATE_DATA_SIZE[2] + j * GAME_STATE_DATA_SIZE[2] + k)) {
 						board.at(j * SIDE_LENGTH + k) = '#';
 					}
 				} else if (i == 2) {
-					if (data.at(i * GAME_STATE_DATA_SIZE[0] * GAME_STATE_DATA_SIZE[1] + j * GAME_STATE_DATA_SIZE[1] + k)) {
+					if (data.at(i * GAME_STATE_DATA_SIZE[1] * GAME_STATE_DATA_SIZE[2] + j * GAME_STATE_DATA_SIZE[2] + k)) {
 						board.at(j * SIDE_LENGTH + k) = 'O';
 					}
 				} else if (i == 3) {
-					if (data.at(i * GAME_STATE_DATA_SIZE[0] * GAME_STATE_DATA_SIZE[1] + j * GAME_STATE_DATA_SIZE[1] + k)) {
+					if (data.at(i * GAME_STATE_DATA_SIZE[1] * GAME_STATE_DATA_SIZE[2] + j * GAME_STATE_DATA_SIZE[2] + k)) {
 						board.at(j * SIDE_LENGTH + k) = 'X';
 					}
 				}

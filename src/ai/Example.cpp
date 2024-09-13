@@ -53,7 +53,7 @@ std::vector<Example> Example::load(std::istream& in) {
 			example.gameStateData.push_back(elements.at(0).at(i));
 		}
 		for (unsigned int i = 1; i < elements.size() - 1; i++) {
-			example.moveProbabilities.push_back(std::stof(elements.at(i + 1)));
+			example.moveProbabilities.push_back(std::stof(elements.at(i)));
 		}
 		example.value = std::stof(elements.at(elements.size() - 1));
 
@@ -108,7 +108,7 @@ void Example::display(std::ostream& out) const {
 	out << *gameState;
 
 	for (const int move : *gameState->getValidMoves()) {
-		out << move << " " << moveProbabilities[move + 1] << '\n';
+		out << move << " " << moveProbabilities.at(move + 1) << '\n';
 	}
 
 	out << value << '\n';
