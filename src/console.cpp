@@ -5,12 +5,18 @@
 
 int main(int argc, char* argv[]) {
 	NeuralNetwork neuralNetwork;
-	MCTS mcts(&neuralNetwork, 100);
 	if (argc >= 2) {
 		if (!neuralNetwork.load(argv[1])) {
 			std::cout << "ERROR: Starting current model did not load correctly from " << argv[1] << '\n';
 		}
 	}
+
+	int simulations = 100;
+	if (argc >= 3) {
+		simulations = std::stoi(argv[2]);
+	}
+
+	MCTS mcts(&neuralNetwork, simulations);
 
 	GameState* gameState = GameState::newGame('X', "#...#.....#.O...........#");
 	gameState->printGameState();
