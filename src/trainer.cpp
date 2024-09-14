@@ -8,7 +8,8 @@
 
 int main(int argc, char* argv[]) {
 	NeuralNetwork neuralNetwork;
-	std::ofstream lout("trainerLog.txt");
+	std::ofstream lout("trainerLog.txt", std::ios::app);
+	lout << "Starting up" << '\n';
 	if (argc >= 2) {
 		if (!neuralNetwork.load(argv[1])) {
 			lout << "ERROR: Starting current model did not load correctly from " << argv[1] << '\n';
