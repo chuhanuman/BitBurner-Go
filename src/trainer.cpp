@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
 				lout << "ERROR: Current model did not save correctly to models/temp.pt" << '\n';
 			}
 			
-			for (int epoch = 0; epoch < 10 * ((LOAD_EXAMPLES > 0 && iteration == 0) ? LOAD_EXAMPLES : 1); epoch++) {
+			for (int epoch = 0; epoch < 2 * ((LOAD_EXAMPLES > 0 && iteration == 0) ? LOAD_EXAMPLES : 1); epoch++) {
 				if (LOAD_EXAMPLES > 0 && iteration == 0) {
 					std::uniform_int_distribution<int> exampleDistribution(1, LOAD_EXAMPLES);
 					examples.clear();
