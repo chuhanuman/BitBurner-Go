@@ -22,10 +22,16 @@ int main(int argc, char* argv[]) {
 	gameState->printGameState();
 
 	while (gameState->getEndState() < -1) {
+		std::pair<std::vector<float>, float> prediction = neuralNetwork.predict(gameState);
 		std::vector<float> moveProbabilities = mcts.getMoveProbabilities(gameState);
 		for (unsigned int i = 0; i < gameState->getValidMoves()->size(); i++) {
-			std::cout << i << " " << gameState->getValidMoves()->at(i) << " " << moveProbabilities[gameState->getValidMoves()->at(i) + 1] << " " << mcts.getMoveValue(gameState->getChild(i)) << '\n';
+			std::cout << i << " ";
+			std::cout << gameState->getValidMoves()->at(i) << " ";
+			std::cout << prediction.first[gameState->getValidMoves()->at(i) + 1] << " ";
+			std::cout << moveProbabilities[gameState->getValidMoves()->at(i) + 1] << " ";
+			std::cout << mcts.getMoveValue(gameState->getChild(i)) << '\n';
 		}
+		std::cout << prediction.second << '\n';
 
 		int moveToPlay;
 		std::cin >> moveToPlay;
