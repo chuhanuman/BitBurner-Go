@@ -4,7 +4,7 @@
 /**
  * @brief Multiplied by the exploration term in the calculation for selection score, higher values encourage exploration
  */
-constexpr float EXPLORATION_PARAMETER = 2;
+constexpr float EXPLORATION_PARAMETER = 1.4f;
 /**
  * @brief Used in creating a Dirichlet distribution, higher values encourage exploration
  */
