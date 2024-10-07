@@ -16,6 +16,8 @@ set(CONSOLE_SOURCE_FILES
     src/ai/NeuralNetwork.h src/ai/NeuralNetwork.cpp
     src/ai/MCTSConstants.h
     src/ai/MCTS.h src/ai/MCTS.cpp
+    src/ai/BasicMCTS.h src/ai/BasicMCTS.cpp
+    src/ai/AdvancedMCTS.h src/ai/AdvancedMCTS.cpp
     src/utils.h src/utils.cpp
     src/console.cpp
 )
@@ -57,6 +59,7 @@ set(TRAINER_SOURCE_FILES
     src/ai/NeuralNetwork.h src/ai/NeuralNetwork.cpp
     src/ai/MCTSConstants.h
     src/ai/MCTS.h src/ai/MCTS.cpp
+    src/ai/AdvancedMCTS.h src/ai/AdvancedMCTS.cpp
     src/utils.h src/utils.cpp
     src/trainer.cpp
 )
