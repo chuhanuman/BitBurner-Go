@@ -179,7 +179,7 @@ bool GameState::isSurrounded(const unsigned int startIndex, const unsigned int i
             return false;
         } else if (board[curIndex] == color) {
             for (const unsigned int neighbor : NEIGHBORS[curIndex]) {
-                stack.push_back(neighbor);
+                stack.emplace_back(neighbor);
             }
         }
     }
@@ -212,9 +212,9 @@ void GameState::attemptDestroyChain(std::string& board, const unsigned int index
 			delete[] visitedBoard;
             return;
         } else if (board[curIndex] == color) {
-            chain.push_back(curIndex);
+            chain.emplace_back(curIndex);
             for (const unsigned int neighbor : NEIGHBORS[curIndex]) {
-                stack.push_back(neighbor);
+                stack.emplace_back(neighbor);
             }
         }
     }
@@ -237,7 +237,7 @@ GameState* GameState::makeMove(const int move) const {
 
 	child->color = flipColor(color);
 	child->previousBoards = previousBoards;
-	child->previousBoards.push_back(board);
+	child->previousBoards.emplace_back(board);
 	if (move != -1) {
 		child->board = placePiece(move);
 		child->passed = false;
@@ -270,8 +270,8 @@ std::string GameState::placePiece(const unsigned int index) const {
 void GameState::setup() {
 	for (int i = -1; i < static_cast<int>(AREA); i++) {
 		if (isValid(i)) {
-			validMoves.push_back(i);
-			children.push_back(nullptr);
+			validMoves.emplace_back(i);
+			children.emplace_back(nullptr);
 		}
 	}
 
@@ -341,7 +341,7 @@ void GameState::endGame() {
             if (board[curIndex] == '.') {
                 chainLength++;
                 for (const unsigned int neighbor : NEIGHBORS[curIndex]) {
-                    stack.push_back(neighbor);
+                    stack.emplace_back(neighbor);
                 }
             }
         }

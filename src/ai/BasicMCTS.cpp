@@ -74,9 +74,6 @@ float BasicMCTS::simulate(GameState* potentialLeaf) {
 		
 		StateInfo stateInfo;
 		leafStateInfoIter = stateInfos.emplace(potentialLeaf, stateInfo).first;
-		
-		//Shuffles moves because the first unexplored move is always selected first
-		std::shuffle(potentialLeaf->getValidMoves()->begin(), potentialLeaf->getValidMoves()->end(), rng);
 	} else if (endState >= -1) {
 		value = endState;
 	} else {
