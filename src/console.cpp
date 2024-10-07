@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 		mcts2 = new BasicMCTS(std::stoi(argv[4]));
 	} else {
 		neuralNetwork2.load(argv[3]);
-		mcts2 = new AdvancedMCTS(&neuralNetwork1, std::stoi(argv[4]));
+		mcts2 = new AdvancedMCTS(&neuralNetwork2, std::stoi(argv[4]));
 	}
 
 	GameState* gameState = GameState::newGame('X', "#...#.....#.O...........#");
