@@ -1,3 +1,5 @@
+#include "ai/AdvancedMCTS.h"
+
 #include <fstream>
 #include <chrono>
 #include <random>
@@ -55,7 +57,7 @@ int main(int argc, char* argv[]) {
 	std::random_device seeder;
 	auto rng = std::mt19937_64(seeder());
 	std::uniform_real_distribution distribution(0.0, 1.0);
-	MCTS mcts(&neuralNetwork, NUM_SIMULATIONS);
+	AdvancedMCTS mcts(&neuralNetwork, NUM_SIMULATIONS);
 	for (int iteration = 0; iteration < NUM_ITERATIONS; iteration++) {
 		lout << "Starting iteration " << iteration << '\n';
 		lout.flush();

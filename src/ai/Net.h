@@ -74,7 +74,7 @@ struct NetImpl : public nn::Module {
 		value = dropout(relu(fcBnV1(fcV1(value))), 0.1, is_training()); //batchSize by 512
 		value = fcV2(value).nan_to_num(); //batchSize by 1
 
-		return {log_softmax(probabilities, 1), value.sigmoid()};
+		return {log_softmax(probabilities, 1), value.tanh()};
 	}
 };
 TORCH_MODULE(Net);

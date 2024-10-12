@@ -93,6 +93,7 @@ float AdvancedMCTS::simulate(GameState* potentialLeaf) {
 
 			auto childStateInfoIter = stateInfos.find(potentialLeaf->getChild(i));
 			if (childStateInfoIter != stateInfos.end()) {
+				//Child value ranges from 0 to 1
 				float childValue;
 				if (potentialLeaf->getColor() == 'O') {
 					childValue = (1 + (childStateInfoIter->second.totalValue / childStateInfoIter->second.visits)) / 2;
