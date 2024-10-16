@@ -27,6 +27,14 @@ public:
 	 * @return vector of examples
 	 */
 	static std::vector<Example> load(std::istream& in);
+
+	/**
+	 * @brief Loads examples from stream, limiting the number to avoid using too much memory
+	 * @param in stream to load examples from
+	 * @param examples vector to save examples to
+	 * @return whether the file is complete
+	 */
+	static bool safeLoad(std::istream& in, std::vector<Example>& examples);
 	
 	/**
 	 * @brief Saves examples to stream

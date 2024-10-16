@@ -48,8 +48,8 @@ int main(int argc, char* argv[]) {
 	const int NUM_GAMES = config.at(3);
 	const int EXPLORATION_TURNS = config.at(4);
 	const int BATCH_SIZE = config.at(5);
-	const int LOAD_EXAMPLES = config.at(6);
-	const int SKIP_TRAINING = config.at(7);
+	const int EPOCHS = config.at(6);
+	const int SKIP_EXAMPLE_GENERATION = config.at(7);
 	const int DISPLAY_GAMES = config.at(8);
 	const int MAXIMUM_TURNS = config.at(9);
 	const float RESULT_WEIGHT = config.at(10) / 100.0f;
@@ -62,9 +62,8 @@ int main(int argc, char* argv[]) {
 		lout << "Starting iteration " << iteration << '\n';
 		lout.flush();
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		
-		std::vector<Example> examples;
-		if (LOAD_EXAMPLES == 0 || iteration != 0) {
+
+		if (SKIP_EXAMPLE_GENERATION == 0 || iteration != 0) {
 			lout << "Starting example generation" << '\n';
 			lout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n';
 			lout.flush();
@@ -138,27 +137,21 @@ int main(int argc, char* argv[]) {
 
 			exout.close();
 			gmout.close();
-
-			fin.open("gameMCTSTemp.ex");
-			examples = Example::load(fin);
-			fin.close();
 		}
-		
-		if (SKIP_TRAINING == 0 || iteration != 0) {
-			if (!neuralNetwork.save("models/temp.pt")) {
-				lout << "ERROR: Current model did not save correctly to models/temp.pt" << '\n';
-			}
-			
-			for (int epoch = 0; epoch < 2 * ((LOAD_EXAMPLES > 0 && iteration == 0) ? LOAD_EXAMPLES : 1); epoch++) {
-				if (LOAD_EXAMPLES > 0 && iteration == 0) {
-					std::uniform_int_distribution<int> exampleDistribution(1, LOAD_EXAMPLES);
-					examples.clear();
 
-					fin.open("examples/temp" + std::to_string(exampleDistribution(rng)) + ".ex");
-					examples = Example::load(fin);
-					fin.close();
-				}
-				
+		if (!neuralNetwork.save("models/temp.pt")) {
+			lout << "ERROR: Current model did not save correctly to models/temp.pt" << '\n';
+		}
+
+		std::vector<Example> examples;
+		for (int epoch = 0; epoch < EPOCHS; epoch++) {
+			fin.open("gameMCTSTemp.ex");
+
+			bool complete = false;
+			while (!complete) {
+				examples.clear();
+				complete = Example::safeLoad(fin, examples);
+
 				lout << "Training with " << examples.size() << " examples." << '\n';
 				lout << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes have passed" << '\n';
 				lout.flush();
@@ -168,6 +161,8 @@ int main(int argc, char* argv[]) {
 					lout << "ERROR: Current model did not save correctly to models/temp2.pt" << '\n';
 				}
 			}
+
+			fin.close();
 		}
 		
 		lout << "Iteration " << iteration << " took " << std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now()-begin).count() << " minutes" << '\n';

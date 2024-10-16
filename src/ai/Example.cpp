@@ -63,6 +63,37 @@ std::vector<Example> Example::load(std::istream& in) {
 	return examples;
 }
 
+bool Example::safeLoad(std::istream& in, std::vector<Example>& examples) {
+	constexpr int MAX_EXAMPLES = 65536;
+	int count = 0;
+	while (!(in.eof() || in.fail()) && count < MAX_EXAMPLES) {
+		Example example;
+		std::string line;
+		
+		std::getline(in, line);
+		
+		if (in.fail()) {
+			break;
+		} else if (line.empty()) {
+			continue;
+		}
+		
+		std::vector<std::string> elements = split(line, ' ');
+		for (unsigned int i = 0; i < GAME_STATE_DATA_LENGTH; i++) {
+			example.gameStateData.push_back(elements.at(0).at(i));
+		}
+		for (unsigned int i = 1; i < elements.size() - 1; i++) {
+			example.moveProbabilities.push_back(std::stof(elements.at(i)));
+		}
+		example.value = std::stof(elements.at(elements.size() - 1));
+
+		examples.push_back(example);
+		count++;
+	}
+	
+	return (in.eof() || in.fail());
+}
+
 void Example::save(std::ostream& out, const std::vector<Example>& examples) {
 	out << std::fixed;
 	for (const Example& example : examples) {
