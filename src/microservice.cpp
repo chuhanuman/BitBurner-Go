@@ -1,5 +1,5 @@
-#include "GameState.h"
-#include "MCTS.h"
+#include "game/GameState.h"
+#include "ai/MCTS.h"
 #include "Listener.h"
 #include "utils.h"
 

@@ -1,0 +1,11 @@
+100 Iterations
+1000 Episodes
+100 Simulations
+400 Games
+30 Exploration turns
+512 Batch Size
+0 Load examples
+0 Skip training
+0 Display games
+10000 Maximum turns
+95 Result weight
