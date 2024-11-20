@@ -44,6 +44,13 @@ public:
 	static void save(std::ostream& out, const std::vector<Example>& examples);
 
 	/**
+	 * @brief Loads examples from input and saves examples to output with duplicates being averaged out
+	 * @param in stream to load examples from
+	 * @param out stream to write examples to
+	 */
+	static void saveAverage(std::istream& in, std::ostream& out);
+
+	/**
 	 * @brief Returns game state data
 	 * @return game state data
 	 */

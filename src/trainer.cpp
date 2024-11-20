@@ -143,10 +143,24 @@ int main(int argc, char* argv[]) {
 			lout << "ERROR: Current model did not save correctly to models/temp.pt" << '\n';
 		}
 
+		fin.open("gameMCTSTemp.ex");
+		std::ofstream fout("average.ex");
+		Example::saveAverage(fin, fout);
+		fin.close();
+		fout.close();
+
 		std::vector<Example> examples;
 		for (int epoch = 0; epoch < EPOCHS; epoch++) {
-			fin.open("gameMCTSTemp.ex");
+			fin.open("average.ex");
+			examples = Example::load(fin);
+			fin.close();
 
+			std::shuffle(examples.begin(), examples.end(), rng);
+			fout.open("average.ex");
+			Example::save(fout, examples);
+			fout.close();
+
+			fin.open("average.ex");
 			bool complete = false;
 			while (!complete) {
 				examples.clear();

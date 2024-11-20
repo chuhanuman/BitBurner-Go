@@ -1,5 +1,7 @@
 #include "Example.h"
 
+#include <unordered_map>
+
 #include "GameStateData.h"
 #include "../utils.h"
 
@@ -115,6 +117,78 @@ void Example::save(std::ostream& out, const std::vector<Example>& examples) {
 			out << static_cast<int>(example.value);
 		} else {
 			out << example.value;
+		}
+		out << '\n';
+	}
+	out.flush();
+	out << std::defaultfloat;
+}
+
+void Example::saveAverage(std::istream& in, std::ostream& out) {
+	std::unordered_map<std::string, std::vector<std::pair<std::vector<float>, float>>> examples;
+	while (!(in.eof() || in.fail())) {
+		std::string state;
+		std::pair<std::vector<float>, float> result;
+		std::string line;
+		
+		std::getline(in, line);
+		
+		if (in.fail()) {
+			break;
+		} else if (line.empty()) {
+			continue;
+		}
+		
+		std::vector<std::string> elements = split(line, ' ');
+		for (unsigned int i = 0; i < GAME_STATE_DATA_LENGTH; i++) {
+			state.push_back(elements.at(0).at(i));
+		}
+		for (unsigned int i = 1; i < elements.size() - 1; i++) {
+			result.first.emplace_back(std::stof(elements.at(i)));
+		}
+		result.second = std::stof(elements.at(elements.size() - 1));
+
+		if (examples.find(state) == examples.end()) {
+			std::vector<std::pair<std::vector<float>, float>> temp;
+			examples.emplace(state, temp);
+		}
+
+		examples.at(state).push_back(result);
+	}
+
+	out << std::fixed;
+	for (const auto& [state, results] : examples) {
+		for (const uint8_t num : state) {
+			out << num;
+		}
+		out << ' ';
+
+		std::vector<float> totalProbabilities;
+		totalProbabilities.resize(NUM_MOVES, 0);
+		float totalValue = 0;
+		for (const auto& [moveProbabilities, value] : results) {
+			for (size_t move = 0; move < moveProbabilities.size(); move++) {
+				totalProbabilities[move] += moveProbabilities[move];
+			}
+			totalValue += value;
+		}
+
+		for (float moveProbability : totalProbabilities) {
+			moveProbability /= results.size();
+			//Checks if float can be printed as an int
+			if (moveProbability == ceilf(moveProbability)) {
+				out << static_cast<int>(moveProbability) << ' ';
+			} else {
+				out << moveProbability << ' ';
+			}
+		}
+
+		//Checks if float can be printed as an int
+		const float value = totalValue / results.size();
+		if (value == ceilf(value)) {
+			out << static_cast<int>(value);
+		} else {
+			out << value;
 		}
 		out << '\n';
 	}
